@@ -7,7 +7,9 @@ import {
   MAX_SCREENSHOT_SIZE,
   ALLOWED_IMAGE_TYPES,
   TOOLS,
+  CATEGORIES,
 } from "@/lib/constants";
+import { TagInput } from "./tag-input";
 
 export function UploadForm() {
   const [uploading, setUploading] = useState(false);
@@ -151,6 +153,30 @@ export function UploadForm() {
             </option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-2">
+          카테고리
+        </label>
+        <select
+          name="category"
+          className="w-full px-4 py-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+        >
+          <option value="">선택 안함</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-2">
+          태그
+        </label>
+        <TagInput name="tags" />
       </div>
 
       <button
