@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { extractPreview } from "@/lib/preview-extractor";
 import { NextResponse } from "next/server";
-import { MAX_FILE_SIZE, MAX_SCREENSHOT_SIZE, ALLOWED_IMAGE_TYPES, ALLOWED_FILE_TYPES } from "@/lib/constants";
+import { MAX_FILE_SIZE, MAX_SCREENSHOT_SIZE, ALLOWED_IMAGE_TYPES, ALLOWED_FILE_TYPES, CATEGORIES, MAX_TAGS_PER_PROJECT, MAX_TAG_LENGTH } from "@/lib/constants";
+import type { CategoryType } from "@/lib/constants";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -17,6 +18,9 @@ export async function POST(request: Request) {
   const title = formData.get("title") as string;
   const description = (formData.get("description") as string) || null;
   const toolUsed = (formData.get("tool_used") as string) || null;
+  const category = (formData.get("category") as string) || null;
+  const tagsRaw = formData.get("tags") as string;
+  const tagNames: string[] = tagsRaw ? JSON.parse(tagsRaw) : [];
   const screenshot = formData.get("screenshot") as File;
   const projectFile = formData.get("project_file") as File;
 
@@ -43,6 +47,14 @@ export async function POST(request: Request) {
 
   if (projectFile.size > MAX_FILE_SIZE) {
     return NextResponse.json({ error: "프로젝트 파일은 50MB 이하만 허용됩니다" }, { status: 400 });
+  }
+
+  if (category && !CATEGORIES.includes(category as CategoryType)) {
+    return NextResponse.json({ error: "유효하지 않은 카테고리입니다" }, { status: 400 });
+  }
+
+  if (tagNames.length > MAX_TAGS_PER_PROJECT) {
+    return NextResponse.json({ error: `태그는 ${MAX_TAGS_PER_PROJECT}개까지 가능합니다` }, { status: 400 });
   }
 
   // 프로젝트 ID 생성
@@ -114,11 +126,30 @@ export async function POST(request: Request) {
     file_url: zipPath,
     preview_url: previewPublicUrl,
     tool_used: toolUsed,
+    category,
     user_id: user.id,
   });
 
   if (dbError) {
     return NextResponse.json({ error: "프로젝트 저장 실패" }, { status: 500 });
+  }
+
+  // Tag upsert
+  for (const tagName of tagNames) {
+    const normalized = tagName.toLowerCase().trim();
+    if (!normalized || normalized.length > MAX_TAG_LENGTH) continue;
+
+    const { data: tag } = await supabase
+      .from("tags")
+      .upsert({ name: normalized }, { onConflict: "name" })
+      .select("id")
+      .single();
+
+    if (tag) {
+      await supabase
+        .from("project_tags")
+        .insert({ project_id: projectId, tag_id: tag.id });
+    }
   }
 
   return NextResponse.json({ id: projectId });
