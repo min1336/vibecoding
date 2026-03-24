@@ -1,32 +1,36 @@
 import { createClient } from "@/lib/supabase/server";
-import { ProjectGrid } from "@/components/gallery/project-grid";
-import { LoadMoreButton } from "@/components/gallery/load-more-button";
 import { PAGE_SIZE } from "@/lib/constants";
+import { GalleryClient } from "./gallery-client";
 
 export const revalidate = 60;
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; tool?: string; category?: string; q?: string }>;
+}) {
+  const params = await searchParams;
+  const sort = params.sort || "new";
   const supabase = await createClient();
-  const { data: projects } = await supabase
+
+  let query = supabase
     .from("projects")
-    .select("*, profiles(*)")
-    .order("created_at", { ascending: false })
-    .range(0, PAGE_SIZE - 1);
+    .select("*, profiles(*)");
 
-  const allProjects = projects ?? [];
+  // Filters
+  if (params.tool) query = query.eq("tool_used", params.tool);
+  if (params.category) query = query.eq("category", params.category);
+  if (params.q) query = query.ilike("title", `%${params.q}%`);
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">
-          바이브코딩 갤러리
-        </h1>
-        <p className="mt-2 text-zinc-400">
-          AI로 만든 멋진 프로젝트들을 구경하세요
-        </p>
-      </div>
-      <ProjectGrid projects={allProjects} />
-      <LoadMoreButton initialCount={allProjects.length} />
-    </div>
-  );
+  // Sort
+  if (sort === "popular") {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("created_at", sevenDaysAgo).order("likes_count", { ascending: false });
+  } else {
+    query = query.order("created_at", { ascending: false });
+  }
+
+  const { data: projects } = await query.range(0, PAGE_SIZE - 1);
+
+  return <GalleryClient initialProjects={projects ?? []} initialSort={sort} />;
 }
