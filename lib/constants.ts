@@ -32,3 +32,20 @@ export const TOOLS = [
 ] as const;
 
 export type ToolType = (typeof TOOLS)[number];
+
+export const CATEGORIES = [
+  "Game",
+  "Dashboard",
+  "Landing Page",
+  "Portfolio",
+  "E-commerce",
+  "Utility",
+  "Other",
+] as const;
+
+export type CategoryType = (typeof CATEGORIES)[number];
+
+export const MAX_TAGS_PER_PROJECT = 5;
+export const MAX_TAG_LENGTH = 30;
+export const MAX_COMMENT_LENGTH = 1000;
+export const COMMENT_RATE_LIMIT = 10; // per minute per user
