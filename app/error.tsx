@@ -8,7 +8,7 @@ export default function ErrorPage({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="text-6xl mb-4">😵</div>
+      <div className="text-4xl mb-4 text-zinc-600 font-mono">!</div>
       <h2 className="text-xl font-semibold text-zinc-300 mb-2">
         문제가 발생했어요
       </h2>
