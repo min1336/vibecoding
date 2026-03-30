@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export function LikeButton({
   projectId, initialLiked, initialCount, isAuthenticated,
@@ -48,18 +49,14 @@ export function LikeButton({
   };
 
   return (
-    <button
+    <Button
+      variant={liked ? "default" : "outline"}
       onClick={toggle}
       disabled={pending}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-300
-        ${liked
-          ? "bg-violet-600/10 border-violet-500 text-violet-400"
-          : "bg-zinc-900 border-zinc-700 text-zinc-300 hover:border-zinc-500"}`}
+      className={liked ? "bg-primary/10 text-primary border-primary hover:bg-primary/20" : ""}
     >
-      <span className={liked ? "text-violet-400" : "text-zinc-500"}>
-        {liked ? "♥" : "♡"}
-      </span>
+      <span>{liked ? "\u2665" : "\u2661"}</span>
       {count}
-    </button>
+    </Button>
   );
 }

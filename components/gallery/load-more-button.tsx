@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { PAGE_SIZE } from "@/lib/constants";
 import type { Project } from "@/lib/types";
 import { ProjectCard } from "./project-card";
+import { Button } from "@/components/ui/button";
 
 export function LoadMoreButton({
   initialCount,
@@ -44,13 +45,9 @@ export function LoadMoreButton({
       )}
       {hasMore && (
         <div className="flex justify-center mt-8">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="px-6 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium transition-colors disabled:opacity-50"
-          >
+          <Button variant="outline" size="lg" onClick={loadMore} disabled={loading}>
             {loading ? "로딩 중..." : "더 보기"}
-          </button>
+          </Button>
         </div>
       )}
     </>

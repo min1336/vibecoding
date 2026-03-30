@@ -1,20 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { MAX_COMMENT_LENGTH, COMMENT_RATE_LIMIT } from "@/lib/constants";
+import { COMMENT_RATE_LIMIT } from "@/lib/constants";
+import { commentCreateSchema, projectIdParamSchema } from "@/lib/schemas";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get("project_id");
 
-  if (!projectId) {
-    return NextResponse.json({ error: "project_id가 필요합니다" }, { status: 400 });
+  const parsed = projectIdParamSchema.safeParse(projectId);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("comments")
     .select("*, profiles(*)")
-    .eq("project_id", projectId)
+    .eq("project_id", parsed.data)
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -32,18 +34,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "로그인이 필요합니다" }, { status: 401 });
   }
 
-  const { project_id, content } = await request.json();
+  const body = await request.json();
+  const parsed = commentCreateSchema.safeParse(body);
 
-  if (!project_id || !content?.trim()) {
-    return NextResponse.json({ error: "내용을 입력해주세요" }, { status: 400 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  if (content.length > MAX_COMMENT_LENGTH) {
-    return NextResponse.json(
-      { error: `댓글은 ${MAX_COMMENT_LENGTH}자 이내로 입력해주세요` },
-      { status: 400 }
-    );
-  }
+  const { project_id, content } = parsed.data;
 
   // Rate limit check
   const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
@@ -59,7 +57,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase
     .from("comments")
-    .insert({ user_id: user.id, project_id, content: content.trim() })
+    .insert({ user_id: user.id, project_id, content })
     .select("*, profiles(*)")
     .single();
 

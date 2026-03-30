@@ -3,6 +3,9 @@
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
@@ -41,7 +44,7 @@ export function AuthButton() {
   };
 
   if (loading) {
-    return <div className="h-9 w-20 bg-zinc-800 animate-pulse rounded-lg" />;
+    return <Skeleton className="h-8 w-20 rounded-lg" />;
   }
 
   if (user) {
@@ -50,32 +53,23 @@ export function AuthButton() {
 
     return (
       <div className="flex items-center gap-3">
-        {avatarUrl && (
-          <img
-            src={avatarUrl}
-            alt={name || "User"}
-            className="w-8 h-8 rounded-full"
-          />
-        )}
-        <span className="text-sm text-zinc-300 hidden sm:inline">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={avatarUrl} alt={name || "User"} />
+          <AvatarFallback>{name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+        </Avatar>
+        <span className="text-sm text-muted-foreground hidden sm:inline">
           {name}
         </span>
-        <button
-          onClick={handleLogout}
-          className="text-sm px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
-        >
+        <Button variant="ghost" size="sm" onClick={handleLogout}>
           로그아웃
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={handleLogin}
-      className="text-sm px-4 py-2 rounded-lg bg-white text-black font-medium hover:bg-zinc-200 transition-colors"
-    >
+    <Button variant="outline" onClick={handleLogin}>
       Google 로그인
-    </button>
+    </Button>
   );
 }

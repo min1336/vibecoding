@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { likeToggleSchema } from "@/lib/schemas";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -9,10 +10,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "로그인이 필요합니다" }, { status: 401 });
   }
 
-  const { project_id } = await request.json();
-  if (!project_id) {
-    return NextResponse.json({ error: "project_id가 필요합니다" }, { status: 400 });
+  const body = await request.json();
+  const parsed = likeToggleSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
+
+  const { project_id } = parsed.data;
 
   // Check if already liked
   const { data: existing } = await supabase

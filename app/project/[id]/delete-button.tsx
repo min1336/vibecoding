@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export function DeleteButton({ projectId }: { projectId: string }) {
   const [confirming, setConfirming] = useState(false);
@@ -24,30 +25,20 @@ export function DeleteButton({ projectId }: { projectId: string }) {
   if (confirming) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-red-400">정말 삭제하시겠어요?</span>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm transition-colors disabled:opacity-50"
-        >
+        <span className="text-sm text-destructive">정말 삭제하시겠어요?</span>
+        <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
           {deleting ? "삭제 중..." : "확인"}
-        </button>
-        <button
-          onClick={() => setConfirming(false)}
-          className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 text-sm hover:bg-zinc-700 transition-colors"
-        >
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
           취소
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={() => setConfirming(true)}
-      className="px-4 py-2 rounded-lg bg-zinc-800 text-red-400 text-sm hover:bg-zinc-700 transition-colors"
-    >
+    <Button variant="ghost" size="sm" onClick={() => setConfirming(true)} className="text-destructive hover:text-destructive">
       삭제
-    </button>
+    </Button>
   );
 }

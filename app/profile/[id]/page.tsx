@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { ProjectGrid } from "@/components/gallery/project-grid";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default async function ProfilePage({
   params,
@@ -27,12 +28,13 @@ export default async function ProfilePage({
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-4 mb-8">
-        {profile.avatar_url && (
-          <img src={profile.avatar_url} alt="" className="w-16 h-16 rounded-full" />
-        )}
+        <Avatar className="h-16 w-16">
+          <AvatarImage src={profile.avatar_url || undefined} alt="" />
+          <AvatarFallback className="text-lg">{profile.display_name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+        </Avatar>
         <div>
           <h1 className="text-2xl font-bold">{profile.display_name}</h1>
-          {profile.bio && <p className="text-zinc-400 text-sm mt-1">{profile.bio}</p>}
+          {profile.bio && <p className="text-muted-foreground text-sm mt-1">{profile.bio}</p>}
         </div>
       </div>
 

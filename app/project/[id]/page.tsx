@@ -55,7 +55,7 @@ export default async function ProjectPage({
       {project.preview_url ? (
         <IframePreview previewUrl={project.preview_url} />
       ) : (
-        <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-800">
+        <div className="relative aspect-video rounded-xl overflow-hidden border border-border">
           <Image src={project.screenshot_url} alt={project.title} fill className="object-cover" priority />
         </div>
       )}
@@ -65,7 +65,7 @@ export default async function ProjectPage({
           <h1 className="text-2xl font-bold break-words">{project.title}</h1>
 
           {project.description && (
-            <p className="mt-3 text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap break-words">
+            <p className="mt-3 text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap break-words">
               {project.description}
             </p>
           )}
