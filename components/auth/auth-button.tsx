@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -11,6 +12,7 @@ export function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
     const getUser = async () => {
@@ -28,15 +30,6 @@ export function AuthButton() {
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
-
-  const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
 
   const handleLogout = async () => {
     await fetch("/auth/signout", { method: "POST" });
@@ -68,8 +61,8 @@ export function AuthButton() {
   }
 
   return (
-    <Button variant="outline" onClick={handleLogin}>
-      Google 로그인
+    <Button variant="outline" onClick={() => router.push("/login")}>
+      로그인
     </Button>
   );
 }
