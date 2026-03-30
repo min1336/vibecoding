@@ -26,6 +26,8 @@ export function IframePreview({ previewUrl }: { previewUrl: string }) {
         src={previewUrl}
         title="프로젝트 프리뷰"
         className="w-full h-full"
+        referrerPolicy="no-referrer"
+        loading="lazy"
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
       />

@@ -19,6 +19,12 @@ export function Header() {
             <span className="text-primary">V</span>ibeCoding
           </Link>
           <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className={buttonVariants({ variant: "ghost" })}
+            >
+              Dashboard
+            </Link>
             <Link href="/upload" className={buttonVariants()}>
               + Upload
             </Link>
