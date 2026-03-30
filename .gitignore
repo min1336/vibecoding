@@ -40,3 +40,8 @@ next-env.d.ts
 
 # omc
 .omc/
+.playwright-mcp/*
+.agent/*
+.claude/*
+.antigravity/*
+supabase/*
